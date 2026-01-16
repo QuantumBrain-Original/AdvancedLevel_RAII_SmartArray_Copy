@@ -1,13 +1,14 @@
 ﻿#include <iostream>
 #include <string>
+#include <cstring>
 #include <Windows.h>
 #include <exception>
-#include <vector>
+//#include <vector>
 
 class smart_array
 {
 	int size, items;
-	std::vector<int> arr;
+	int* arr;
 
 public:
 	smart_array(int arrsize) : size(arrsize), items(0)
@@ -15,7 +16,7 @@ public:
 		if (arrsize <= 0)
 			throw std::exception("Размер массива не может быть меньше или равен 0!");
 
-		arr.resize(size);
+		this->arr = new int[size];
 	}
 
 	void add_element(int a)
@@ -26,12 +27,41 @@ public:
 		arr[items++] = a;
 	}
 
-	void get_element(int id) const
+	int get_element(int id) const
 	{
 		if (id >= size || id < 0)
 			throw std::exception("Задан некорректный номер элемента!");
 
-		std::cout << arr[id] << std::endl;
+		return arr[id];
+	}
+
+	smart_array& operator=(const smart_array& arr2) {
+		if (this == &arr2)
+			return *this;
+
+		delete[] arr;
+
+		items = arr2.items;
+		size = arr2.size;
+		arr = new int[items];
+
+		for (int i = 0; i < size; ++i)
+			arr[i] = arr2.arr[i];
+
+		return *this;
+	}
+
+	void print() const
+	{
+		for (int i = 0; i < size; ++i)
+			std::cout << arr[i] << " ";
+	
+		std::cout << std::endl;
+	}
+
+	~smart_array()
+	{
+		delete[] arr;
 	}
 };
 
@@ -48,17 +78,17 @@ int main()
 		arr.add_element(4);
 		arr.add_element(155);
 
+		std::cout << "Исходный массив:" << std::endl;
+		arr.print();
+
 		smart_array new_array(2);
 		new_array.add_element(44);
 		new_array.add_element(34);
 
-		arr.get_element(1);
-		new_array.get_element(1);
-
 		arr = new_array;
 
-		arr.get_element(1);
-		new_array.get_element(1);
+		std::cout << "Новый массив:" << std::endl;
+		arr.print();
 	}
 	catch (const std::exception& ex)
 	{
